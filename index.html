@@ -33,6 +33,9 @@
             <ion-route url="/registro" component="pagina-registro"></ion-route>
             <ion-route url="/monedas" component="pagina-monedas"></ion-route>
             <ion-route url="/moneda" component="pagina-moneda"></ion-route>
+            <ion-route url="/usuarios" component="pagina-usuarios"></ion-route>
+            <ion-route url="/transacciones" component="pagina-transacciones"></ion-route>
+            <ion-route url="/inversiones" component="pagina-inversiones"></ion-route>
             <ion-route url="/" component="pagina-login"></ion-route>
         </ion-router>
         
@@ -68,7 +71,7 @@
             </ion-content>
             <ion-footer>
                 <ion-toolbar>
-                    <ion-title class="ion-text-center">queso</ion-title>
+                    <ion-title class="ion-text-center">Crypto app Patrocined by flopi y Santi</ion-title>
                 </ion-toolbar>
             </ion-footer>
         </ion-page>
@@ -117,11 +120,12 @@
             </ion-content>
             <ion-footer>
                 <ion-toolbar>
-                    <ion-title class="ion-text-center">queso</ion-title>
+                    <ion-title class="ion-text-center">Crypto app Patrocined by flopi y Santi</ion-title>
                 </ion-toolbar>
             </ion-footer>
         </ion-page>
-         <!-- pagina listado de locales de comidas -->
+
+         <!-- pagina listado de monedas -->
          <ion-page class="ion-page" id="pagina-monedas">
             <ion-header>
                 <ion-toolbar>
@@ -134,11 +138,13 @@
             </ion-content>
             <ion-footer>
                 <ion-toolbar>
-                    <ion-title class="ion-text-center">Queso</ion-title>
+                    <ion-title class="ion-text-center">Crypto app Patrocined by flopi y Santi</ion-title>
                 </ion-toolbar>
             </ion-footer>
         </ion-page>
 
+
+        <!-- pagina de moneda con cotizacion  -->
         <ion-page class="ion-page" id="pagina-moneda">
             <ion-header>
                 <ion-toolbar>
@@ -149,20 +155,20 @@
                 <ion-card>
                     <img src="" id="moneda_imagen" />
                     <ion-card-header>
-                        <ion-card-subtitle id="moneda_cot"></ion-card-subtitle>
+                        <ion-card-subtitle id="moneda_cot">Cotiza: </ion-card-subtitle>
                         <ion-card-title id="moneda_nombre"></ion-card-title>
                     </ion-card-header>
                     <ion-card-content>
                         <ion-item>
                             <ion-label position="floating">Operacion</ion-label>
                             <ion-select id="inp_operacion">
-                                <ion-select-option value="F">Compra</ion-select-option>
-                                <ion-select-option value="M">Venta</ion-select-option>
+                                <ion-select-option value="1">Compra</ion-select-option>
+                                <ion-select-option value="2">Venta</ion-select-option>
                             </ion-select>
                         </ion-item>
                         <ion-item>
-                            <ion-label position="floating">Monto</ion-label>
-                            <ion-input type="number" placeholder="Ingrese monto" id="inp_monto"></ion-input>
+                            <ion-label position="floating">Cantidad unidades</ion-label>
+                            <ion-input type="number" placeholder="Ingrese cantidad unidades" id="inp_cdad"></ion-input>
                         </ion-item>
                         <ion-button color="primary" expand="block" id="btn_ingresar">Ingresar</ion-button>
 
@@ -172,10 +178,82 @@
             </ion-content>
             <ion-footer>
                 <ion-toolbar>
-                    <ion-title class="ion-text-center">queso</ion-title>
+                    <ion-title class="ion-text-center">Crypto app Patrocined by flopi y Santi</ion-title>
                 </ion-toolbar>
             </ion-footer>
         </ion-page>
+
+        <!-- pagina de usuario por depto -->
+        <ion-page class="ion-page" id="pagina-usuarios">
+            <ion-header>
+                <ion-toolbar>
+                    <ion-title class="ion-text-center">Usuarios por departamento</ion-title>
+                </ion-toolbar>
+            </ion-header>
+            <ion-content class="ion-padding">
+                <ion-card>
+                    <img src="" id="local_imagen" />
+                    <ion-card-header>
+                        <ion-card-subtitle id="local_servicios"></ion-card-subtitle>
+                        <ion-card-title id="local_titulo"></ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content>
+                        <p id="local_horario"></p>
+                        <hr>
+                        <p id="local_telefono"></p>
+                        <hr>
+                        <p id="local_direccion"></p>
+                        <hr>
+                        <div id="map"></div>
+                        
+                    </ion-card-content>
+                </ion-card>
+            </ion-content>
+            <ion-footer>
+                <ion-toolbar>
+                    <ion-title class="ion-text-center">Crypto app Patrocined by flopi y Santi</ion-title>
+                </ion-toolbar>
+            </ion-footer>
+        </ion-page>
+
+          <!-- pagina listado de transacciones -->
+          <ion-page class="ion-page" id="pagina-transacciones">
+            <ion-header>
+                <ion-toolbar>
+                    <ion-title class="ion-text-center">Transacciones</ion-title>
+                </ion-toolbar>
+            </ion-header>
+            <!-- <ion-select id="inp_filtroMoneda">
+            </ion-select> -->
+            <ion-content class="ion-padding">
+                <ion-list id="listTransacciones">
+                </ion-list>
+            </ion-content>
+            <ion-footer>
+                <ion-toolbar>
+                    <ion-title class="ion-text-center">Crypto app Patrocined by flopi y Santi</ion-title>
+                </ion-toolbar>
+            </ion-footer>
+        </ion-page>
+
+        <!-- pagina listado de montos invertidos por moneda -->
+        <ion-page class="ion-page" id="pagina-inversiones">
+            <ion-header>
+                <ion-toolbar>
+                    <ion-title class="ion-text-center">Inversiones</ion-title>
+                </ion-toolbar>
+            </ion-header>
+            <ion-content class="ion-padding">
+                <ion-list id="listInversiones">
+                </ion-list>
+            </ion-content>
+            <ion-footer>
+                <ion-toolbar>
+                    <ion-title class="ion-text-center">Crypto app Patrocined by flopi y Santi</ion-title>
+                </ion-toolbar>
+            </ion-footer>
+        </ion-page>
+
     </ion-app>
 </body>
 

@@ -1,4 +1,3 @@
-
 const URLApi = 'https://crypto.develotion.com'
 document.addEventListener('DOMContentLoaded', function(){
 
@@ -19,6 +18,15 @@ document.addEventListener('DOMContentLoaded', function(){
         }
         if(nav.to == '/moneda'){
             info_moneda();
+        }
+        if(nav.to == '/usuarios'){
+            info_usuarios();
+        }
+        if(nav.to == '/transacciones'){
+            listar_transacciones();
+        }
+        if(nav.to == '/inversiones'){
+            listar_inversiones();
         }
     });
     document.getElementById('btn_registro').onclick = function(){       
@@ -147,8 +155,8 @@ function crearListadoMonedas(data){
 }
 
 function info_moneda(){
-    const id_moneda = getParam('id');
-    const url = URLApi + '/monedas';
+    const id = getParam('id');
+    const url = URLApi + '/monedas.php';
     let key = sessionStorage.getItem("apiKey");
     fetch(url, {
         headers:{
@@ -156,15 +164,56 @@ function info_moneda(){
             "Content-type":"application/json"
         }
     }).then(respuesta => respuesta.json())
-    .then(data => crear_info_usuario(data.monedas[id_moneda-1]))
+    .then(data => crear_info_moneda(data.monedas[id-1]))
+
 }
+
 
 function crear_info_moneda(data){
     console.log(data)
     urlImagen = 'https://crypto.develotion.com/imgs/' + data.imagen;
     document.getElementById('moneda_imagen').setAttribute('src', urlImagen);
     document.getElementById('moneda_nombre').innerHTML = data.nombre;
-    document.getElementById('moneda_cot').innerHTML = data.cotizacion;
+    document.getElementById('moneda_cot').innerHTML += data.cotizacion;
+
+    document.getElementById('btn_ingresar').onclick = function(){
+        try{
+            let operacion = document.getElementById('inp_operacion').value;
+            let monto = Math.round(document.getElementById('inp_cdad').value);
+            // if(!usuario){
+            //     throw 'Usuario requerido';
+            // }
+            // if(!password){
+            //     throw 'Contrase&ntilde;a requerida';
+            // }
+            // invocar API de login de usuario.
+            const url = URLApi + '/transacciones.php';
+            const idUsuario = sessionStorage.getItem('idUsuario');
+            const key = sessionStorage.getItem('apiKey');
+
+            const datos = {
+                "idUsuario": idUsuario,
+                "tipoOperacion": operacion,
+                "moneda": data.id,
+                "cantidad": monto,
+                "valorActual": data.cotizacion
+            }
+            fetch(url, {
+                method:'POST',
+                body: JSON.stringify(datos),
+                headers:{
+                    "apiKey": key,
+                    "Content-type":"application/json"
+                }
+            }).then(respuesta => (respuesta.ok)?respuesta.json():respuesta.json().then(data => Promise.reject(data.error)))
+            .then(data => console.log(data))
+            // deberiamos poner mostrar mensaje para mostrarle al usuario que se realizo la transaccion
+            .catch(mensaje => display_toast(mensaje,'Info','primary'))
+        }
+        catch(e){
+            console.log(e);
+        }
+    }
 }
 
 function getParam(name, url = window.location.href) {
@@ -174,4 +223,173 @@ function getParam(name, url = window.location.href) {
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+function listar_transacciones(){
+    let key = sessionStorage.getItem("apiKey");
+    let idUsuario = sessionStorage.getItem("idUsuario");
+    const url = URLApi + `/transacciones.php?idUsuario=${idUsuario}`;
+    fetch(url, {
+        headers:{
+            "apiKey": key,
+            "Content-type":"application/json"
+        }
+    }).then(respuesta => respuesta.json())
+    .then(data => conseguirInfoMonedas(data))
+}
+
+function conseguirInfoMonedas(dataTransacciones){
+    let key = sessionStorage.getItem("apiKey");
+    const url = URLApi + `/monedas.php`;
+    fetch(url, {
+        headers:{
+            "apiKey": key,
+            "Content-type":"application/json"
+        }
+    }).then(respuesta => respuesta.json())
+    .then(data => crearListadoTransacciones(data.monedas,dataTransacciones))
+
+}
+
+
+function crearListadoTransacciones(monedas,data){
+    let lista = document.getElementById('listTransacciones');
+    let item = '';
+    // let monedaTransaccionada=[];
+    
+    for (let i = 0; i<= data.transacciones.length; i++){
+        let trans = data.transacciones[i];
+        // if (!monedaTransaccionada.includes(trans.moneda)){
+        //     monedaTransaccionada.push(trans.moneda);
+        // }
+        // const moneda = getMonedaPorId(trans.moneda);
+        let tipoOperacion;
+        if(trans.tipo_operacion == 1){
+            tipoOperacion = 'compra'
+        } else { 
+            tipoOperacion = 'venta'
+        }
+        item = `
+        <ion-item>
+        <ion-label>
+        <h2>Moneda: ${monedas[trans.moneda-1].nombre}</h2>
+        <h3>Operacion: ${tipoOperacion}</h3>
+        <h3>Cantidad: ${trans.cantidad}</h3>
+        <h3>Valor de la moneda: ${trans.valor_actual}</h3>
+        </ion-label>
+        </ion-item>`;
+        lista.innerHTML += item;
+    }
+    // let select = document.getElementById('inp_filtroMoneda');
+    // let option = '';
+    // for (let e=0; e<=monedaTransaccionada.length; e++){
+    //     let nombre= monedas[monedaTransaccionada[e]-1].nombre;
+    //     option = `<ion-select-option value="${monedaTransaccionada[e]}">${nombre}</ion-select-option>`;
+    //     select.innerHTML += option;
+    // }
+}
+
+
+function listar_inversiones(){
+    let key = sessionStorage.getItem("apiKey");
+    let idUsuario = sessionStorage.getItem("idUsuario");
+    const url = URLApi + `/transacciones.php?idUsuario=${idUsuario}`;
+    fetch(url, {
+        headers:{
+            "apiKey": key,
+            "Content-type":"application/json"
+        }
+    }).then(respuesta => respuesta.json())
+    .then(data => conseguirInfoMonedasParaInversiones(data))
+}
+
+function conseguirInfoMonedasParaInversiones(dataTransacciones){
+    let key = sessionStorage.getItem("apiKey");
+    const url = URLApi + `/monedas.php`;
+    fetch(url, {
+        headers:{
+            "apiKey": key,
+            "Content-type":"application/json"
+        }
+    }).then(respuesta => respuesta.json())
+    .then(data => crearListadoInversiones(data.monedas,dataTransacciones))
+}
+
+function crearListadoInversiones(monedas,data){
+    let lista = document.getElementById('listInversiones');
+    let item = '';
+
+    for (let i = 0; i<= monedas.length; i++){
+        let moneda = monedas[i];
+        let totalMoneda =getMontoMoneda(moneda.id,data);
+
+        item = `
+        <ion-item>
+        <ion-label>
+        <h2>Moneda: ${moneda.nombre}</h2>
+        <h3>Monto invertido: ${totalMoneda}</h3>
+        </ion-label>
+        </ion-item>`;
+        lista.innerHTML += item;
+    }
+
+}
+
+
+function getMontoMoneda(id, data){
+    let monto=0;
+    for (let i = 0; i< data.transacciones.length; i++){
+        let trans=data.transacciones[i]
+        if (trans.moneda==id && trans.tipo_operacion==1) {
+            monto=monto+(trans.cantidad*trans.valor_actual);      
+        }
+    }
+    return monto;
+}   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// MAPAAAA
+function info_usuarios(){
+    cargando('Cargando local...').then((loading) => {
+        loading.present();
+        const url = URLApi += '/usuariosPorDepartamento.php';
+        let apiKey = sessionStorage.getItem("apiKey");
+        fetch(url, {
+            headers:{
+                "Authorization": apiKey,
+                "Content-type":"application/json",
+            }
+        }).then(respuesta => respuesta.json())
+        .then(data => crear_info_usuarios(data))
+        .catch(error => display_toast(error, 'Info', 'primary'))
+        .finally(() => loading.dismiss());
+    });
+}
+
+async function cargando(message){
+    const loading = await loadingController.create({
+        message: message,
+      });
+    return await loading;
+}
+
+function crear_info_usuarios(){
+
 }
