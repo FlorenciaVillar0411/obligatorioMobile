@@ -1,4 +1,7 @@
 const URLApi = 'https://crypto.develotion.com'
+const cambio = 41.9;
+let map;
+
 document.addEventListener('DOMContentLoaded', function(){
 
     let router = document.querySelector('ion-router');
@@ -27,6 +30,9 @@ document.addEventListener('DOMContentLoaded', function(){
         }
         if(nav.to == '/inversiones'){
             listar_inversiones();
+        }
+        if(nav.to == '/inversion'){
+            info_inversion();
         }
     });
     document.getElementById('btn_registro').onclick = function(){       
@@ -135,7 +141,6 @@ function listar_monedas(){
 }
 
 function crearListadoMonedas(data){
-    console.log(data)
     const urlImagen = 'https://crypto.develotion.com/imgs/'
     let lista = document.getElementById('listMonedas');
     let item = '';
@@ -170,7 +175,6 @@ function info_moneda(){
 
 
 function crear_info_moneda(data){
-    console.log(data)
     urlImagen = 'https://crypto.develotion.com/imgs/' + data.imagen;
     document.getElementById('moneda_imagen').setAttribute('src', urlImagen);
     document.getElementById('moneda_nombre').innerHTML = data.nombre;
@@ -253,16 +257,14 @@ function conseguirInfoMonedas(dataTransacciones){
 
 
 function crearListadoTransacciones(monedas,data){
+
+
     let lista = document.getElementById('listTransacciones');
     let item = '';
-    // let monedaTransaccionada=[];
     
-    for (let i = 0; i<= data.transacciones.length; i++){
+    for (let i = 0; i< data.transacciones.length; i++){
         let trans = data.transacciones[i];
-        // if (!monedaTransaccionada.includes(trans.moneda)){
-        //     monedaTransaccionada.push(trans.moneda);
-        // }
-        // const moneda = getMonedaPorId(trans.moneda);
+
         let tipoOperacion;
         if(trans.tipo_operacion == 1){
             tipoOperacion = 'compra'
@@ -280,13 +282,45 @@ function crearListadoTransacciones(monedas,data){
         </ion-item>`;
         lista.innerHTML += item;
     }
-    // let select = document.getElementById('inp_filtroMoneda');
-    // let option = '';
-    // for (let e=0; e<=monedaTransaccionada.length; e++){
-    //     let nombre= monedas[monedaTransaccionada[e]-1].nombre;
-    //     option = `<ion-select-option value="${monedaTransaccionada[e]}">${nombre}</ion-select-option>`;
-    //     select.innerHTML += option;
-    // }
+
+    let select = document.getElementById('inp_filtroMoneda');
+    let option = '';
+    
+    for (let i = 0; i< monedas.length; i++){
+        let mon = monedas[i];
+        
+        option = `
+        <ion-select-option value="${mon.id}">${mon.nombre}</ion-select-option>
+        `;
+        select.innerHTML += option;
+    }
+
+    document.getElementById('btn_filtrar').onclick = function(){
+        let monIngresada = document.getElementById('inp_filtroMoneda').value
+        lista.innerHTML='';
+        for (let i = 0; i< data.transacciones.length; i++){
+            let trans = data.transacciones[i];
+            if(monIngresada==trans.moneda){
+                let tipoOperacion;
+                if(trans.tipo_operacion == 1){
+                    tipoOperacion = 'compra'
+                } else { 
+                    tipoOperacion = 'venta'
+                }
+                item = `
+                <ion-item>
+                <ion-label>
+                <h2>Moneda: ${monedas[trans.moneda-1].nombre}</h2>
+                <h3>Operacion: ${tipoOperacion}</h3>
+                <h3>Cantidad: ${trans.cantidad}</h3>
+                <h3>Valor de la moneda: ${trans.valor_actual}</h3>
+                </ion-label>
+                </ion-item>`;
+                lista.innerHTML += item;
+                
+            }
+        }
+    }
 }
 
 
@@ -335,7 +369,6 @@ function crearListadoInversiones(monedas,data){
 
 }
 
-
 function getMontoMoneda(id, data){
     let monto=0;
     for (let i = 0; i< data.transacciones.length; i++){
@@ -347,19 +380,30 @@ function getMontoMoneda(id, data){
     return monto;
 }   
 
+function info_inversion(){
+    let key = sessionStorage.getItem("apiKey");
+    let idUsuario = sessionStorage.getItem("idUsuario");
+    const url = URLApi + `/transacciones.php?idUsuario=${idUsuario}`;
+    fetch(url, {
+        headers:{
+            "apiKey": key,
+            "Content-type":"application/json"
+        }
+    }).then(respuesta => respuesta.json())
+    .then(data => mostrarInversion(data.transacciones))
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+function mostrarInversion(data){
+    let monto = 0;
+    for (let i = 0; i < data.length; i++){
+        let trans =data[i]
+        if (trans.tipo_operacion==1){
+            monto= monto+(trans.cantidad*trans.valor_actual);
+        } else {monto=monto-(trans.cantidad*trans.valor_actual)}
+    }
+    monto=Math.round(monto*cambio);
+    document.querySelector("#montoInvertido").innerHTML=monto+" UYU"
+}
 
 
 
@@ -381,6 +425,21 @@ function info_usuarios(){
         .catch(error => display_toast(error, 'Info', 'primary'))
         .finally(() => loading.dismiss());
     });
+}
+
+function crear_Mapa(){
+    if(map != undefined){
+        map.remove();
+    }
+    map = L.map('map').setView([33, 56], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    L.marker([data.lat, data.lng]).addTo(map)
+        .bindPopup(`<strong>${data.nombre}</strong><br/>${data.direccion}`)
+        .openPopup();
 }
 
 async function cargando(message){

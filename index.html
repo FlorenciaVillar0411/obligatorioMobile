@@ -36,6 +36,7 @@
             <ion-route url="/usuarios" component="pagina-usuarios"></ion-route>
             <ion-route url="/transacciones" component="pagina-transacciones"></ion-route>
             <ion-route url="/inversiones" component="pagina-inversiones"></ion-route>
+            <ion-route url="/inversion" component="pagina-inversion"></ion-route>
             <ion-route url="/" component="pagina-login"></ion-route>
         </ion-router>
         
@@ -71,7 +72,7 @@
             </ion-content>
             <ion-footer>
                 <ion-toolbar>
-                    <ion-title class="ion-text-center">Crypto app Patrocined by flopi y Santi</ion-title>
+                    <ion-title class="ion-text-center">Crypto app powered by flopi y Santi</ion-title>
                 </ion-toolbar>
             </ion-footer>
         </ion-page>
@@ -120,7 +121,7 @@
             </ion-content>
             <ion-footer>
                 <ion-toolbar>
-                    <ion-title class="ion-text-center">Crypto app Patrocined by flopi y Santi</ion-title>
+                    <ion-title class="ion-text-center">Crypto app powered by flopi y Santi</ion-title>
                 </ion-toolbar>
             </ion-footer>
         </ion-page>
@@ -138,7 +139,7 @@
             </ion-content>
             <ion-footer>
                 <ion-toolbar>
-                    <ion-title class="ion-text-center">Crypto app Patrocined by flopi y Santi</ion-title>
+                    <ion-title class="ion-text-center">Crypto app powered by flopi y Santi</ion-title>
                 </ion-toolbar>
             </ion-footer>
         </ion-page>
@@ -178,7 +179,7 @@
             </ion-content>
             <ion-footer>
                 <ion-toolbar>
-                    <ion-title class="ion-text-center">Crypto app Patrocined by flopi y Santi</ion-title>
+                    <ion-title class="ion-text-center">Crypto app powered by flopi y Santi</ion-title>
                 </ion-toolbar>
             </ion-footer>
         </ion-page>
@@ -211,7 +212,7 @@
             </ion-content>
             <ion-footer>
                 <ion-toolbar>
-                    <ion-title class="ion-text-center">Crypto app Patrocined by flopi y Santi</ion-title>
+                    <ion-title class="ion-text-center">Crypto app powered by flopi y Santi</ion-title>
                 </ion-toolbar>
             </ion-footer>
         </ion-page>
@@ -223,19 +224,51 @@
                     <ion-title class="ion-text-center">Transacciones</ion-title>
                 </ion-toolbar>
             </ion-header>
-            <!-- <ion-select id="inp_filtroMoneda">
-            </ion-select> -->
+            <ion-item>
+                <ion-label position="floating">Filtrar por moneda</ion-label>
+                <ion-select id="inp_filtroMoneda">
+                </ion-select>
+                <ion-button expand="block" id="btn_filtrar">FILTRAR</ion-button>
+            </ion-item>
             <ion-content class="ion-padding">
                 <ion-list id="listTransacciones">
                 </ion-list>
             </ion-content>
             <ion-footer>
                 <ion-toolbar>
-                    <ion-title class="ion-text-center">Crypto app Patrocined by flopi y Santi</ion-title>
+                    <ion-title class="ion-text-center">Crypto app powered by flopi y Santi</ion-title>
                 </ion-toolbar>
             </ion-footer>
         </ion-page>
 
+        <!-- pagina listado de montos invertidos por moneda -->
+        <ion-page class="ion-page" id="pagina-inversion">
+            <ion-header>
+                <ion-toolbar>
+                    <ion-title class="ion-text-center">Monto final de inversiones</ion-title>
+                </ion-toolbar>
+            </ion-header>
+            <ion-content class="ion-padding">
+                <ion-card>
+                    <ion-card-header>
+                        <ion-card-subtitle> cambio: 41,90</ion-card-subtitle>
+                        <ion-card-title>Inversion total</ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content>
+                        <ion-item>
+                            <div id="montoInvertido">
+                            </div>
+                        </ion-item>
+                    </ion-card-content>
+                </ion-card>
+            </ion-content>
+            <ion-footer>
+                <ion-toolbar>
+                    <ion-title class="ion-text-center">Crypto app powered by flopi y Santi</ion-title>
+                </ion-toolbar>
+            </ion-footer>
+        </ion-page>
+        
         <!-- pagina listado de montos invertidos por moneda -->
         <ion-page class="ion-page" id="pagina-inversiones">
             <ion-header>
@@ -249,7 +282,7 @@
             </ion-content>
             <ion-footer>
                 <ion-toolbar>
-                    <ion-title class="ion-text-center">Crypto app Patrocined by flopi y Santi</ion-title>
+                    <ion-title class="ion-text-center">Crypto app powered by flopi y Santi</ion-title>
                 </ion-toolbar>
             </ion-footer>
         </ion-page>

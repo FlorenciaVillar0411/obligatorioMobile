@@ -1,0 +1,26 @@
+{
+  "name": "obligatorio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FlorenciaVillar0411/obligatorioMobile.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FlorenciaVillar0411/obligatorioMobile/issues"
+  },
+  "homepage": "https://github.com/FlorenciaVillar0411/obligatorioMobile#readme",
+  "dependencies": {
+    "@capacitor/android": "^4.0.1",
+    "@capacitor/core": "^4.0.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^4.0.1"
+  }
+}

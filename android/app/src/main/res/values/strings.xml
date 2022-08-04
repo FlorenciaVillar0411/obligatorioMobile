@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Crypto Obligatorio</string>
+    <string name="title_activity_main">Crypto Obligatorio</string>
+    <string name="package_name">com.obligatorio.crypto.app</string>
+    <string name="custom_url_scheme">com.obligatorio.crypto.app</string>
+</resources>
