@@ -3,9 +3,9 @@ const cambio = 41.9;
 let map;
 
 document.addEventListener('DOMContentLoaded', function(){
-
     let router = document.querySelector('ion-router');
     router.addEventListener('ionRouteDidChange', function(e){
+        document.getElementById('menu_lateral').close();
         let nav = e.detail;
         let paginas = document.getElementsByTagName('ion-page');
         for(let i=0 ; i<paginas.length; i++){
@@ -34,7 +34,11 @@ document.addEventListener('DOMContentLoaded', function(){
         if(nav.to == '/inversion'){
             info_inversion();
         }
+        if(nav.to == '/cerrarSesion'){
+            cerrarSesion();
+        }
     });
+
     document.getElementById('btn_registro').onclick = function(){       
         try{
             let usuario = document.getElementById('inp_usuario').value;
@@ -43,16 +47,13 @@ document.addEventListener('DOMContentLoaded', function(){
             const ciudad = document.getElementById('inp_ciudad').value;
             const depto = document.getElementById('inp_depto').value;
             
-            // if(!usuario){
-            //     throw 'Nombre requerido para continuar';
-            // }
-            // if(password != repassword){
-            //     throw 'Contrase&ntilde;a y repetici&oacute;n no coinciden';
-            // }
+            if(!usuario){
+                throw 'Nombre requerido para continuar';
+            }
+            if(password != repassword){
+                throw 'Contrase&ntilde;a y repetici&oacute;n no coinciden';
+            }
 
-            // TODO otras validaciones...
-
-            // post a API registro de usuario
             const url = URLApi + '/usuarios.php';
             const datos = {
                 "usuario": usuario,
@@ -67,29 +68,31 @@ document.addEventListener('DOMContentLoaded', function(){
                     "Content-type":"application/json"
                 }
             }).then(respuesta => (respuesta.ok)?respuesta.json():respuesta.json().then(data => Promise.reject(data.error)))
-            .then(data => console.log(data))
-            .catch(mensaje => display_toast(mensaje,'Info','primary'))
-            console.log(usuario);
+            .then(data => {
+                display_toast('Usuario registrado', 'Info','primary')
+                console.log(data);
+                login(data, router);
+        })
+            .catch(() => display_toast('Usuario no ha podido registrarse','Info','primary'))
         }   
         catch(e){
-            console.log(e);
+            display_toast(e);
         }
     }
 
     document.getElementById('btn_login').onclick = function(){
         try{
-            let usuario = document.getElementById('inp_usuarioLogin').value;
+            let user = document.getElementById('inp_usuarioLogin').value;
             let password = document.getElementById('inp_password').value;
-            if(!usuario){
-                throw 'Usuario requerido';
+            if(!user){
+                throw 'Nombre requerido para continuar';
             }
             if(!password){
                 throw 'Contrase&ntilde;a requerida';
             }
-            // invocar API de login de usuario.
             const url = URLApi + '/login.php';
             const datos = {
-                "usuario": usuario,
+                "usuario": user,
                 "password": password
             }
             fetch(url, {
@@ -99,20 +102,26 @@ document.addEventListener('DOMContentLoaded', function(){
                     "Content-type":"application/json"
                 }
             }).then(respuesta => (respuesta.ok)?respuesta.json():respuesta.json().then(data => Promise.reject(data.error)))
-            .then(data => login(data, router))
-            .catch(mensaje => display_toast(mensaje,'Info','primary'))
+            .then(data => login(data, router, user))
+            .catch(() => display_toast('No se ha podido ingresar','Info','primary'))
         }
         catch(e){
-            console.log(e);
+            display_toast(e);
         }
     }
 
+    document.getElementById('cerrarSesion').onclick = function(){
+        localStorage.clear();
+        display_toast('Ha cerrado sesion', 'Info', 'primary')
+        router.push('/');
+    }
 });
 
 
-function login(data, router){
-    sessionStorage.setItem("apiKey", data.apiKey);
-    sessionStorage.setItem("idUsuario", JSON.stringify(data.id))
+function login(data, router, usuario){
+    localStorage.setItem("apiKey", data.apiKey);
+    localStorage.setItem("idUsuario", JSON.stringify(data.id))
+    display_toast(usuario, 'Hola!', 'primary')
     router.push('/monedas');
 }
 
@@ -128,23 +137,34 @@ function display_toast(mensaje, header, color){
     toast.present();
 }
 
+async function cargando(message){
+    const loading = await loadingController.create({
+        message: message,
+      });
+    return await loading;
+}
+
 function listar_monedas(){
-    let key = sessionStorage.getItem("apiKey");
-    const url = URLApi + '/monedas.php';
-    fetch(url, {
-        headers:{
-            "apiKey": key,
-            "Content-type":"application/json"
-        }
-    }).then(respuesta => respuesta.json())
-    .then(data => crearListadoMonedas(data))
+    // cargando('Cargando monedas...').then((loading) => {
+        let key = localStorage.getItem("apiKey");
+        const url = URLApi + '/monedas.php';
+        fetch(url, {
+            headers:{
+                "apiKey": key,
+                "Content-type":"application/json"
+            }
+        }).then(respuesta => respuesta.json())
+        .then(data => crearListadoMonedas(data))
+        .catch(error => display_toast(error, 'Info', 'primary'))
+    // });
 }
 
 function crearListadoMonedas(data){
     const urlImagen = 'https://crypto.develotion.com/imgs/'
     let lista = document.getElementById('listMonedas');
+    lista.innerHTML = '';
     let item = '';
-    for (let i = 0; i<= data.monedas.length; i++){
+    for (let i = 0; i< data.monedas.length; i++){
         let moneda = data.monedas[i];
         item = `<ion-item href="/moneda?id=${moneda.id}" detail>
         <ion-avatar slot="start">
@@ -162,7 +182,7 @@ function crearListadoMonedas(data){
 function info_moneda(){
     const id = getParam('id');
     const url = URLApi + '/monedas.php';
-    let key = sessionStorage.getItem("apiKey");
+    let key = localStorage.getItem("apiKey");
     fetch(url, {
         headers:{
             "apiKey": key,
@@ -184,16 +204,10 @@ function crear_info_moneda(data){
         try{
             let operacion = document.getElementById('inp_operacion').value;
             let monto = Math.round(document.getElementById('inp_cdad').value);
-            // if(!usuario){
-            //     throw 'Usuario requerido';
-            // }
-            // if(!password){
-            //     throw 'Contrase&ntilde;a requerida';
-            // }
-            // invocar API de login de usuario.
+
             const url = URLApi + '/transacciones.php';
-            const idUsuario = sessionStorage.getItem('idUsuario');
-            const key = sessionStorage.getItem('apiKey');
+            const idUsuario = localStorage.getItem('idUsuario');
+            const key = localStorage.getItem('apiKey');
 
             const datos = {
                 "idUsuario": idUsuario,
@@ -230,8 +244,8 @@ function getParam(name, url = window.location.href) {
 }
 
 function listar_transacciones(){
-    let key = sessionStorage.getItem("apiKey");
-    let idUsuario = sessionStorage.getItem("idUsuario");
+    let key = localStorage.getItem("apiKey");
+    let idUsuario = localStorage.getItem("idUsuario");
     const url = URLApi + `/transacciones.php?idUsuario=${idUsuario}`;
     fetch(url, {
         headers:{
@@ -243,7 +257,7 @@ function listar_transacciones(){
 }
 
 function conseguirInfoMonedas(dataTransacciones){
-    let key = sessionStorage.getItem("apiKey");
+    let key = localStorage.getItem("apiKey");
     const url = URLApi + `/monedas.php`;
     fetch(url, {
         headers:{
@@ -260,6 +274,7 @@ function crearListadoTransacciones(monedas,data){
 
 
     let lista = document.getElementById('listTransacciones');
+    lista.innerHTML = '';
     let item = '';
     
     for (let i = 0; i< data.transacciones.length; i++){
@@ -325,8 +340,8 @@ function crearListadoTransacciones(monedas,data){
 
 
 function listar_inversiones(){
-    let key = sessionStorage.getItem("apiKey");
-    let idUsuario = sessionStorage.getItem("idUsuario");
+    let key = localStorage.getItem("apiKey");
+    let idUsuario = localStorage.getItem("idUsuario");
     const url = URLApi + `/transacciones.php?idUsuario=${idUsuario}`;
     fetch(url, {
         headers:{
@@ -338,7 +353,7 @@ function listar_inversiones(){
 }
 
 function conseguirInfoMonedasParaInversiones(dataTransacciones){
-    let key = sessionStorage.getItem("apiKey");
+    let key = localStorage.getItem("apiKey");
     const url = URLApi + `/monedas.php`;
     fetch(url, {
         headers:{
@@ -351,9 +366,10 @@ function conseguirInfoMonedasParaInversiones(dataTransacciones){
 
 function crearListadoInversiones(monedas,data){
     let lista = document.getElementById('listInversiones');
+    lista.innerHTML = '';
     let item = '';
 
-    for (let i = 0; i<= monedas.length; i++){
+    for (let i = 0; i< monedas.length; i++){
         let moneda = monedas[i];
         let totalMoneda =getMontoMoneda(moneda.id,data);
 
@@ -381,8 +397,8 @@ function getMontoMoneda(id, data){
 }   
 
 function info_inversion(){
-    let key = sessionStorage.getItem("apiKey");
-    let idUsuario = sessionStorage.getItem("idUsuario");
+    let key = localStorage.getItem("apiKey");
+    let idUsuario = localStorage.getItem("idUsuario");
     const url = URLApi + `/transacciones.php?idUsuario=${idUsuario}`;
     fetch(url, {
         headers:{
@@ -411,42 +427,49 @@ function mostrarInversion(data){
 
 // MAPAAAA
 function info_usuarios(){
-    cargando('Cargando local...').then((loading) => {
-        loading.present();
-        const url = URLApi += '/usuariosPorDepartamento.php';
-        let apiKey = sessionStorage.getItem("apiKey");
-        fetch(url, {
-            headers:{
-                "Authorization": apiKey,
-                "Content-type":"application/json",
-            }
-        }).then(respuesta => respuesta.json())
-        .then(data => crear_info_usuarios(data))
-        .catch(error => display_toast(error, 'Info', 'primary'))
-        .finally(() => loading.dismiss());
-    });
+    let key = localStorage.getItem("apiKey");
+    const url = URLApi + `/usuariosPorDepartamento.php`;
+    fetch(url, {
+        headers:{
+            "apiKey": key,
+            "Content-type":"application/json"
+        }
+    }).then(respuesta => respuesta.json())
+    .then(data => info_departamentos(data.departamentos))
 }
 
-function crear_Mapa(){
+function info_departamentos(usuariosPorDepto){
+    let key = localStorage.getItem("apiKey");
+    const url = URLApi + `/departamentos.php`;
+    fetch(url, {
+        headers:{
+            "apiKey": key,
+            "Content-type":"application/json"
+        }
+    }).then(respuesta => respuesta.json())
+    .then(data => crear_Mapa(data.departamentos, usuariosPorDepto))
+}
+
+function crear_Mapa(deptos, cdadUsuarios){
+    console.log(deptos, cdadUsuarios)
     if(map != undefined){
         map.remove();
-    }
-    map = L.map('map').setView([33, 56], 15);
+    } 
+    map = L.map('map').setView([-56, -33], 6);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    L.marker([data.lat, data.lng]).addTo(map)
-        .bindPopup(`<strong>${data.nombre}</strong><br/>${data.direccion}`)
-        .openPopup();
-}
+    for(let i=0; i<cdadUsuarios.length; i++){
+        depto = deptos[i]
+        cdad = cdadUsuarios[i];
+ 
+        L.marker([depto.latitud, depto.longitud]).addTo(map)
+            .bindPopup(`<strong>${depto.nombre}</strong><br/>${cdad.cantidad_de_usuarios}`)
+            .openPopup();
 
-async function cargando(message){
-    const loading = await loadingController.create({
-        message: message,
-      });
-    return await loading;
+    }
 }
 
 function crear_info_usuarios(){
