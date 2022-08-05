@@ -145,7 +145,8 @@ async function cargando(message){
 }
 
 function listar_monedas(){
-    // cargando('Cargando monedas...').then((loading) => {
+    cargando('Cargando monedas...').then((loading) => {
+        loading.present();
         let key = localStorage.getItem("apiKey");
         const url = URLApi + '/monedas.php';
         fetch(url, {
@@ -156,7 +157,8 @@ function listar_monedas(){
         }).then(respuesta => respuesta.json())
         .then(data => crearListadoMonedas(data))
         .catch(error => display_toast(error, 'Info', 'primary'))
-    // });
+        .finally(() => loading.dismiss())
+    });
 }
 
 function crearListadoMonedas(data){
@@ -180,17 +182,20 @@ function crearListadoMonedas(data){
 }
 
 function info_moneda(){
-    const id = getParam('id');
-    const url = URLApi + '/monedas.php';
-    let key = localStorage.getItem("apiKey");
-    fetch(url, {
-        headers:{
-            "apiKey": key,
-            "Content-type":"application/json"
-        }
-    }).then(respuesta => respuesta.json())
-    .then(data => crear_info_moneda(data.monedas[id-1]))
-
+    cargando('Cargando monedas...').then((loading) => {
+        loading.present();
+        const id = getParam('id');
+        const url = URLApi + '/monedas.php';
+        let key = localStorage.getItem("apiKey");
+        fetch(url, {
+            headers:{
+                "apiKey": key,
+                "Content-type":"application/json"
+            }
+        }).then(respuesta => respuesta.json())
+        .then(data => crear_info_moneda(data.monedas[id-1]))
+        .finally(() => loading.dismiss())
+    });
 }
 
 
@@ -235,25 +240,34 @@ function crear_info_moneda(data){
 }
 
 function getParam(name, url = window.location.href) {
-    name = name.replace(/[\[\]]/g, '\\$&');
-    const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-    results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    cargando('Cargando monedas...').then((loading) => {
+        loading.present();
+        name = name.replace(/[\[\]]/g, '\\$&');
+        const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    })
 }
 
 function listar_transacciones(){
-    let key = localStorage.getItem("apiKey");
-    let idUsuario = localStorage.getItem("idUsuario");
-    const url = URLApi + `/transacciones.php?idUsuario=${idUsuario}`;
-    fetch(url, {
-        headers:{
-            "apiKey": key,
-            "Content-type":"application/json"
-        }
-    }).then(respuesta => respuesta.json())
-    .then(data => conseguirInfoMonedas(data))
+    cargando('Cargando monedas...').then((loading) => {
+        loading.present();
+    
+        let key = localStorage.getItem("apiKey");
+        let idUsuario = localStorage.getItem("idUsuario");
+        const url = URLApi + `/transacciones.php?idUsuario=${idUsuario}`;
+        fetch(url, {
+            headers:{
+                "apiKey": key,
+                "Content-type":"application/json"
+            }
+        }).then(respuesta => respuesta.json())
+        .then(data => conseguirInfoMonedas(data))
+        .finally(() => loading.dismiss())
+
+})
 }
 
 function conseguirInfoMonedas(dataTransacciones){
@@ -362,6 +376,8 @@ function conseguirInfoMonedasParaInversiones(dataTransacciones){
         }
     }).then(respuesta => respuesta.json())
     .then(data => crearListadoInversiones(data.monedas,dataTransacciones))
+    .finally(() => loading.dismiss())
+
 }
 
 function crearListadoInversiones(monedas,data){
@@ -407,6 +423,8 @@ function info_inversion(){
         }
     }).then(respuesta => respuesta.json())
     .then(data => mostrarInversion(data.transacciones))
+    .finally(() => loading.dismiss())
+
 }
 
 function mostrarInversion(data){
@@ -421,41 +439,44 @@ function mostrarInversion(data){
     document.querySelector("#montoInvertido").innerHTML=monto+" UYU"
 }
 
-
-
-
-
-// MAPAAAA
 function info_usuarios(){
-    let key = localStorage.getItem("apiKey");
-    const url = URLApi + `/usuariosPorDepartamento.php`;
-    fetch(url, {
-        headers:{
-            "apiKey": key,
-            "Content-type":"application/json"
-        }
-    }).then(respuesta => respuesta.json())
-    .then(data => info_departamentos(data.departamentos))
+    cargando('Cargando usuarios...').then((loading) => {
+        loading.present();
+        let key = localStorage.getItem("apiKey");
+        const url = URLApi + `/usuariosPorDepartamento.php`;
+        fetch(url, {
+            headers:{
+                "apiKey": key,
+                "Content-type":"application/json"
+            }
+        }).then(respuesta => respuesta.json())
+        .then(data => info_departamentos(data.departamentos))
+        .finally(() => loading.dismiss())
+
+    })
 }
 
 function info_departamentos(usuariosPorDepto){
-    let key = localStorage.getItem("apiKey");
-    const url = URLApi + `/departamentos.php`;
-    fetch(url, {
-        headers:{
-            "apiKey": key,
-            "Content-type":"application/json"
-        }
-    }).then(respuesta => respuesta.json())
-    .then(data => crear_Mapa(data.departamentos, usuariosPorDepto))
+    cargando('Cargando departamentos...').then((loading) => {
+        loading.present();
+        let key = localStorage.getItem("apiKey");
+        const url = URLApi + `/departamentos.php`;
+        fetch(url, {
+            headers:{
+                "apiKey": key,
+                "Content-type":"application/json"
+            }
+        }).then(respuesta => respuesta.json())
+        .then(data => crear_Mapa(data.departamentos, usuariosPorDepto))
+        .finally(() => loading.dismiss())
+})
 }
 
 function crear_Mapa(deptos, cdadUsuarios){
-    console.log(deptos, cdadUsuarios)
     if(map != undefined){
         map.remove();
     } 
-    map = L.map('map').setView([-56, -33], 6);
+    map = L.map('map').setView([-33, -56], 6);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -464,14 +485,8 @@ function crear_Mapa(deptos, cdadUsuarios){
     for(let i=0; i<cdadUsuarios.length; i++){
         depto = deptos[i]
         cdad = cdadUsuarios[i];
- 
         L.marker([depto.latitud, depto.longitud]).addTo(map)
             .bindPopup(`<strong>${depto.nombre}</strong><br/>${cdad.cantidad_de_usuarios}`)
             .openPopup();
-
     }
-}
-
-function crear_info_usuarios(){
-
 }
